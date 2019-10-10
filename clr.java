@@ -11,11 +11,11 @@ end
 //Wherever there is need of char use Character instead
 //Symbol everywhere is a char, never a string
 //------------------------------------------------------
-public class firstFollow {
+class firstFollow {
 	static LinkedHashMap<Character,terminal> terminal_list = new LinkedHashMap<>(); 
 	static LinkedHashMap<Character,nonTerminal> nonterminal_list = new LinkedHashMap<>();
 	static List<String> productions = new ArrayList<String>();
-	public static void main(String[] args) {
+	static void firstFollow() {
 		Scanner sc = new Scanner(System.in);
 		String input;
 		while(true) {
