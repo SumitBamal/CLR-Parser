@@ -9,7 +9,7 @@ A->b
 end
 */
 //Wherever there is need of char use Character instead
-//Symbol everywhere is a char ,never a string
+//Symbol everywhere is a char, never a string
 //------------------------------------------------------
 public class firstFollow {
 	static LinkedHashMap<Character,terminal> terminal_list = new LinkedHashMap<>(); 
@@ -18,18 +18,16 @@ public class firstFollow {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		String input;
-		while(sc.hasNextLine()) {
+		while(true) {
 			input = sc.nextLine();
+			input.replaceAll(" ", "");
 		    if(input.toLowerCase().equals("end") || input.toLowerCase().equals(""))break;
 		    productions.add(input);
 		}
-		//scaned productions before this
+		//When calling wrappedMAin anywhere scan productions into 'productions' first
 		wrappedMain();
-		for(nonTerminal x : nonterminal_list.values()) {
-			printFirstFollow(x);
-			}
-		
 	}
+	//-------------------------FIRST FUNCTION -------------------------------//
 	public static Set<Character> compute_first(Character symbol) {
 		if(terminal_list.keySet().contains(symbol))
 			return new HashSet<>(Arrays.asList(symbol));
@@ -41,22 +39,24 @@ public class firstFollow {
 			if(head!=symbol) continue;
 			if(body==""){
 				nonterminal_list.get(symbol).add_first(new Character[]{(char)94}); 
-				//If S-> ^ then first of S will contain ^ (char)94 , obviously!
+				//If S-> ^ or ''(blank) then first of S will contain ^ (char)94 !
 				continue;
 			}
 			if(body.charAt(0)==symbol)continue;
 			for(int i=0;i<body.length();i++ ) {
+				if(body.charAt(i)==symbol)continue;
 				Set<Character> nxt = compute_first(body.charAt(i));
-				nxt.remove('^');
+				boolean flag = nxt.remove('^');
 				nonterminal_list.get(symbol).add_first(nxt.toArray(new Character[nxt.size()]));
-				//JAVA SUCKS ,above line proves it
-				if(!nxt.contains((char)94)) break;
+				
+				if(!flag) break;
 				if(i==body.length()-1)
 					nonterminal_list.get(symbol).add_first(new Character[]{(char)94}); 
 			}
 		}
 		return nonterminal_list.get(symbol).first;
 	}
+	//-------------------------FOllOW FUNCTION -------------------------------//
 	public static void compute_follow(Character symbol) {
 		if(symbol==nonterminal_list.keySet().toArray()[0])
 			//if symbol  is the first character ie everything is derived from symbol then
@@ -85,9 +85,9 @@ public class firstFollow {
 	public static Set<Character> get_follow(Character symbol){
 		if(terminal_list.containsKey(symbol))
 			return null;
-		compute_follow(symbol);
 		return nonterminal_list.get(symbol).follow;
 	}
+	//-------------------------MAIN FUNCTION -------------------------------//
 	public static void wrappedMain() {
 		Pattern term =Pattern.compile("[a-z]");
 		Pattern nonterm =Pattern.compile("[A-Z]");
@@ -103,11 +103,13 @@ public class firstFollow {
 			if(!nonterminal_list.containsKey(head)) 
 				nonterminal_list.put(head, new nonTerminal(head));
 			Matcher tm = term.matcher(body);
+			//for all terminals in the body of the production
 			while(tm.find()) {
 				Character s = body.charAt(tm.start());	
 				if(!terminal_list.containsKey(s))
 					terminal_list.put(s,new terminal(s));
 			}
+			//for all non-terminals in the body of the production
 			Matcher ntm = nonterm.matcher(body);
 			while(ntm.find()) {
 				Character s = body.charAt(ntm.start());	
@@ -117,8 +119,14 @@ public class firstFollow {
 			
 		}
 	}
+	//-------------------------PRINT FUNCTION -------------------------------//
+	/*
+	            ---DONT USE THIS FUNCTION---
+	*/
 	public static void printFirstFollow(nonTerminal nt) {
+		
 		compute_first(nt.symbol);
+		
 		get_follow(nt.symbol);
 		System.out.print("First is of "+nt.symbol+" is :");
 		nt.first.forEach(System.out::print);
